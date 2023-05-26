@@ -4,7 +4,7 @@ section .text
         align 4
         dd 0x1BADB002               ;magic
         dd 0x00                     ;flags
-        dd - (0x1BADB00 + 0x00)     ;checksum. m+f+c shoulb be zero
+        dd - (0x1BADB002 + 0x00)    ;checksum. m+f+c shoulb be zero
 
 global  start
 extern  kmain                       ;this is defined in the c file
