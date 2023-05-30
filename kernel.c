@@ -1,34 +1,23 @@
-/*
-*   kernel.c
-*/
+#define VGA_ADDRESS 0xB8000
+#define BUFSIZE 2200
 
-void    kmain(void)
-{
-    const char      *str    = "my first kernel";
-    char            *vidptr = (char *)0xb8000;      //Video mem begins here
-    unsigned int    i       = 0;     
-    unsigned int    j       = 0;
+void clear_screen() {
+    volatile char *video = (volatile char*)VGA_ADDRESS;
+    int i = 0;
+    while (i < BUFSIZE) {
+        *video++ = ' ';
+        *video++ = 0x07;
+        i++;
+    }
+}
 
-    /*This loops clears the screen
-    * there are 25 lines each of 80 coloumns; each element takes 2 bytes  */     
-    while(j < 80 * 25 * 2)
-    {
-        // blank character 
-        vidptr[j] = ' ';
-        /* attribute-byte - light grey on black screen */
-        vidptr[j+1] = 0x07;
-        j = j + 2;   
+void kernel_main(void) {
+    clear_screen();
+    
+    const char *str = "42";
+    volatile char *video = (volatile char*)VGA_ADDRESS;
+    while (*str != 0) {
+        *video++ = *str++;
+        *video++ = 0x07;
     }
-    j = 0;
-    /* This loop writes the string to video memory */
-    while(str[j] != '\0')
-    {
-        /* The character's ascii */
-        vidptr[i] = str[j];
-        /* attribute-byte: give character black bg and light grey fg */
-        vidptr[i + 1] = 0x07;
-        ++j;
-        i = i + 2;
-    }
-    return;
 }
