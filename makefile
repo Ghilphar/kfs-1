@@ -6,7 +6,7 @@ CFLAGS = -m32 -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodef
 
 all: kernel
 
-kernel: boot.o kernel.o
+kernel: boot.o kernel.o link.ld
 	$(LD) -m elf_i386 -T link.ld -o kernel boot.o kernel.o
 
 kernel.o: kernel.c
