@@ -1,13 +1,19 @@
-GCC = gcc
+GCC = i686-elf-gcc
 LD = ld
 NASM = nasm
 
 CFLAGS = -m32 -fno-builtin -fno-exceptions -fno-stack-protector -nostdlib -nodefaultlibs
 
-all: kernel
+all: myos.iso
 
-kernel: boot.o kernel.o
-	$(LD) -m elf_i386 -T link.ld -o kernel boot.o kernel.o
+myos.iso: kernel
+	mkdir -p isodir/boot/grub
+	cp mykernel.bin isodir/boot/mykernel.bin
+	cp grub.cfg isodir/boot/grub/grub.cfg
+	grub-mkrescue -o myos.iso isodir
+
+kernel: boot.o kernel.o link.ld
+	$(LD) -m elf_i386 -T link.ld -o mykernel.bin boot.o kernel.o
 
 kernel.o: kernel.c
 	$(GCC) $(CFLAGS) -c kernel.c -o kernel.o
@@ -15,8 +21,13 @@ kernel.o: kernel.c
 boot.o: boot.s
 	$(NASM) -f elf32 boot.s -o boot.o
 
+run: myos.iso
+	qemu-system-i386 -cdrom myos.iso
+
 clean:
 	rm -f *.o
-	rm -f kernel
+	rm -f mykernel.bin
+	rm -f myos.iso
+	rm -rf isodir
 
-.PHONY: all clean
+.PHONY: all run clean
