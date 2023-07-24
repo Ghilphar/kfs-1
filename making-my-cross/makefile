@@ -21,23 +21,23 @@ GMP := gmp-$(GMP_VERSION)
 MPFR := mpfr-$(MPFR_VERSION)
 MPC := mpc-$(MPC_VERSION)
 
-all:   $(BISON) $(FLEX) $(GRUB) #$(TEXINFO) $(BINUTILS) $(M4) $(GMP) $(MPFR) $(MPC) $(GCC)
+all: $(TEXINFO) $(BINUTILS) $(M4) $(GMP) $(MPFR) $(MPC) $(GCC) $(BISON) $(FLEX) $(GRUB) 
 
 $(TEXINFO):
 	mkdir -p $(PREFIX)
 	wget -nc https://ftp.gnu.org/gnu/texinfo/texinfo-6.8.tar.gz -P $(PREFIX)
 	tar xvzf $(PREFIX)/texinfo-6.8.tar.gz -C $(PREFIX)
 	mkdir -p $(PREFIX)/build-texinfo
-	cd $(PREFIX)/build-texinfo && ../configure --target=$(TARGET) --prefix="$(PREFIX)" --disable-nls --enable-languages=c,c++ --without-headers
-	$(MAKE) -C $(PREFIX)/texinfo-6.8
-	$(MAKE) -C $(PREFIX)/texinfo-6.8 install
+	cd $(PREFIX)/build-texinfo && ../texinfo-6.8/configure --target=$(TARGET) --prefix="$(PREFIX)" --disable-nls --enable-languages=c,c++ --without-headers
+	$(MAKE) -C $(PREFIX)/build-texinfo
+	$(MAKE) -C $(PREFIX)/build-texinfo install
 
 $(BINUTILS):
 	mkdir -p $(PREFIX)
 	wget -nc https://ftp.gnu.org/gnu/binutils/$(BINUTILS).tar.gz -P $(PREFIX)
 	tar xvf $(PREFIX)/$(BINUTILS).tar.gz -C $(PREFIX)
 	mkdir -p $(PREFIX)/build-binutils
-	cd $(PREFIX)/build-binutils && ../configure --target=$(TARGET) --prefix="$(PREFIX)" --with-sysroot --disable-nls --disable-werror
+	cd $(PREFIX)/build-binutils && ../$(BINUTILS)/configure --target=$(TARGET) --prefix="$(PREFIX)" --with-sysroot --disable-nls --disable-werror
 	$(MAKE) -C $(PREFIX)/build-binutils
 	$(MAKE) -C $(PREFIX)/build-binutils install
 
