@@ -1,6 +1,6 @@
+export PREFIX := $(HOME)/opt/cross
 export PATH := $(PREFIX)/bin:$(PATH)
 export TARGET := i686-elf
-export PREFIX := $(HOME)/opt/cross
 
 
 BINUTILS_VERSION := 2.35
