@@ -103,14 +103,21 @@ global load_idt
 extern kmain
 extern keyboard_handler_main
 
+; Theses functions facilitate direct communication with hardware ports
+; Read/write a byte of data from a specified I/O port
+; Input the port to read
+; Output a bit of data to read from specified port  
 read_port:
 	mov edx, [esp + 4]
 	in al, dx
 	ret
 
 write_port:
+    ; Port number passed in argument
 	mov   edx, [esp + 4]    
+    ; Data  byte passed in argument
 	mov   al, [esp + 4 + 4]  
+    ; Write a byte dx from al
 	out   dx, al  
 	ret
 
@@ -120,6 +127,11 @@ load_idt:
 	sti
 	ret
 
+; The iretd instruction (interrups return double)
+; is used to return form an interrupt handler
+; When executed it does the opposite of what the cpu did when the interrupt started.
+; Allow the interrupt to resume executing as if nothing had happened.
+; Ensure CPU state is restored appropriatly
 keyboard_handler:                 
 	call    keyboard_handler_main
 	iretd

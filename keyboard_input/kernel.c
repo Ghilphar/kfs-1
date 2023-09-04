@@ -7,13 +7,23 @@
 
 #define SCREENSIZE BYTES_FOR_EACH_ELEMENT * COLUMNS_IN_LINE * LINES
 
+// Keyboard ports.
 #define KEYBOARD_DATA_PORT 0x60
 #define KEYBOARD_STATUS_PORT 0x64
 
+// IDT IS tab of 256 entrys (8192 for the GDT)
 #define IDT_SIZE 256
+// Interrupt entrys are called Gates 10001110
+// Present bbyte 1
+// Descriptor Privilege level 00
+// Segment descriptor 0 part of the system
+// Type Field 1110
+// 32-bit Interrupt Gate
 #define INTERRUPT_GATE 0x8e
+// We need to define the Kernel code segmen on the GDT
 #define KERNEL_CODE_SEGMENT_OFFSET 0x08
 
+// Differents codes for keys of the keyboard
 #define BACKSPACE_KEY_CODE 0x0E
 #define UP_ARROW_KEY_CODE 0x48
 #define DOWN_ARROW_KEY_CODE 0x50
@@ -21,6 +31,7 @@
 #define RIGHT_ARROW_KEY_CODE 0x4D
 #define ENTER_KEY_CODE 0x1C
 
+// Definition of the keyboard map and functions on asm
 extern unsigned char keyboard_map[128];
 extern void keyboard_handler(void);
 extern char read_port(unsigned short port);
@@ -32,6 +43,25 @@ unsigned int current_loc = 0;
 /* video memory begins at address 0xb8000 */
 char *vidptr = (char*)0xb8000;
 
+/* The structure of IDT entry
+	The idt is used by cpu to determine how to handle differents interrupts.
+
+	The offset is the address of the function (interrupt handler) to be executed
+	when the interrupt occurs.
+
+	Selector, this tell the cpu where to find the code segment descriptor
+	that contain the interrupt handler function
+
+	zero, reserved
+
+	type_attr, This byte contains flags that describe the type of interrupt gate
+	and it's attributes.
+
+	offset_higherbits 
+
+	When an interrupt is trigerred, the CPU will look at the corresponding entry in the IDT.
+	Will jump to the address of the interrupt handler function.
+*/
 struct IDT_entry {
 	unsigned short int offset_lowerbits;
 	unsigned short int selector;
@@ -40,6 +70,8 @@ struct IDT_entry {
 	unsigned short int offset_higherbits;
 };
 
+// This line declare an array named IDT. This array will hold all the IDT entries.
+// Given that the x86 architecture typically supports 256
 struct IDT_entry IDT[IDT_SIZE];
 
 unsigned char color_table[8] = {
@@ -54,22 +86,22 @@ unsigned char color_table[8] = {
 };
 unsigned char color = 0x00;
 
-unsigned short get_cursor() {
-    unsigned short pos = 0;
-    write_port(0x3D4, 0x0F);
-    pos |= read_port(0x3D5);
-    write_port(0x3D4, 0x0E);
-    pos |= ((unsigned short)read_port(0x3D5)) << 8;
-    return pos;
-}
 
+// In order to tell the VGA where the cursor is we need to acces the controller on 0x3D4
 void set_cursor(unsigned short pos) {
+	// Sends the command to the VGA controller 0x3D4
+	// the command 0x0F tells the VGA we want to access the low byte of the current position.
     write_port(0x3D4, 0x0F);
+	// Write the low byte of the cursor position from the data port 0x3D5
     write_port(0x3D5, (unsigned char)(pos & 0xFF));
+	// Sends another command to the VGA controller this time the command 0x0E indicates we want to
+	// access the high byte of the cursor
     write_port(0x3D4, 0x0E);
+	// Write the high byte of the cursor position from the data port 0x3D5
     write_port(0x3D5, (unsigned char)((pos >> 8) & 0xFF));
 }
 
+// 
 void idt_init(void)
 {
 	unsigned long keyboard_address;
@@ -77,6 +109,8 @@ void idt_init(void)
 	unsigned long idt_ptr[2];
 
 	/* populate IDT entry of keyboard's interrupt */
+	// The IDT entry 0x21 = 33 is just the keyboard interrupt
+	// We just 
 	keyboard_address = (unsigned long)keyboard_handler;
 	IDT[0x21].offset_lowerbits = keyboard_address & 0xffff;
 	IDT[0x21].selector = KERNEL_CODE_SEGMENT_OFFSET;
@@ -85,36 +119,51 @@ void idt_init(void)
 	IDT[0x21].offset_higherbits = (keyboard_address & 0xffff0000) >> 16;
 
 	/*     Ports
-	*	 PIC1	PIC2
+	*	 	 PIC1	PIC2 (Master Slave)
 	*Command 0x20	0xA0
 	*Data	 0x21	0xA1
 	*/
 
-	/* ICW1 - begin initialization */
+	/* ICW1 (0x11)- begin initialization */
+	// We write the instruction ICW1 on the Programmable interrupt controller
+	// first initialization command word
 	write_port(0x20 , 0x11);
 	write_port(0xA0 , 0x11);
+
 
 	/* ICW2 - remap offset address of IDT */
 	/*
 	* In x86 protected mode, we have to remap the PICs beyond 0x20 because
 	* Intel have designated the first 32 interrupts as "reserved" for cpu exceptions
 	*/
+	// The first 32 interrupts are reserved for CPU exceptions
+	// To avoid conflicts we need to remap the interrupt vectors provided by the PIC
+	// To start from 0x20 (32) onward
 	write_port(0x21 , 0x20);
 	write_port(0xA1 , 0x28);
 
+	// This command tells the master PIC that is has a slave PIC connected to on IRQ2 line
+	// And to the slave PIC that he has a master connected 
 	/* ICW3 - setup cascading */
 	write_port(0x21 , 0x00);
 	write_port(0xA1 , 0x00);
 
+	// Same wes send an ICW4 to to the PIC to provide them info.
+	// We tell the PICs we are working on x86
 	/* ICW4 - environment info */
 	write_port(0x21 , 0x01);
 	write_port(0xA1 , 0x01);
 	/* Initialization finished */
 
+	// We mask the interrupts on both master and slave
+	// meaning the interrupts from devices connected to these PICs are dissabled
+	// Wont be recognize
 	/* mask interrupts */
 	write_port(0x21 , 0xff);
 	write_port(0xA1 , 0xff);
 
+
+	// We put the address of the idt in the idt_pointer we send to our load_idt
 	/* fill the IDT descriptor */
 	idt_address = (unsigned long)IDT ;
 	idt_ptr[0] = (sizeof (struct IDT_entry) * IDT_SIZE) + ((idt_address & 0xffff) << 16);
@@ -126,6 +175,7 @@ void idt_init(void)
 void kb_init(void)
 {
 	/* 0xFD is 11111101 - enables only IRQ1 (keyboard)*/
+	// Basicly we unmask the keyboard interrupt in order to be able to use the keyboard 
 	write_port(0x21 , 0xFD);
 }
 
