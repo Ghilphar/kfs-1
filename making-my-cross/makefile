@@ -16,12 +16,12 @@ BISON := bison-3.7.4
 GRUB := grub-2.06
 BINUTILS := binutils-$(BINUTILS_VERSION)
 GCC := gcc-$(GCC_VERSION)
-M4 := m4-$(M4_VERSION)
-GMP := gmp-$(GMP_VERSION)
-MPFR := mpfr-$(MPFR_VERSION)
-MPC := mpc-$(MPC_VERSION)
+#M4 := m4-$(M4_VERSION)
+#GMP := gmp-$(GMP_VERSION)
+#MPFR := mpfr-$(MPFR_VERSION)
+#MPC := mpc-$(MPC_VERSION)
 
-all: $(TEXINFO) $(BINUTILS) $(M4) $(GMP) $(MPFR) $(MPC) $(GCC) $(BISON) $(FLEX) $(GRUB) 
+all: $(TEXINFO) $(BINUTILS) $(BISON) $(FLEX) $(GRUB) $(M4) #$(GMP) $(MPFR) $(MPC) $(GCC) 
 
 $(TEXINFO):
 	mkdir -p $(PREFIX)
@@ -48,37 +48,37 @@ $(M4):
 	$(MAKE) -C $(PREFIX)/$(M4)
 	$(MAKE) -C $(PREFIX)/$(M4) install
 	
-$(GMP):
-	wget -nc https://ftp.gnu.org/gnu/gmp/$(GMP).tar.bz2 -P $(PREFIX)
-	tar xvf $(PREFIX)/$(GMP).tar.bz2 -C $(PREFIX)
-	cd $(PREFIX)/$(GMP) && ./configure --prefix="$(PREFIX)"
-	$(MAKE) -C $(PREFIX)/$(GMP)
-	$(MAKE) -C $(PREFIX)/$(GMP) install
-
-$(MPFR):
-	wget -nc https://ftp.gnu.org/gnu/mpfr/$(MPFR).tar.gz -P $(PREFIX)
-	tar xvf $(PREFIX)/$(MPFR).tar.gz -C $(PREFIX)
-	cd $(PREFIX)/$(MPFR) && ./configure --prefix="$(PREFIX)" --with-gmp="$(PREFIX)"
-	$(MAKE) -C $(PREFIX)/$(MPFR)
-	$(MAKE) -C $(PREFIX)/$(MPFR) install
-
-$(MPC):
-	wget -nc https://ftp.gnu.org/gnu/mpc/$(MPC).tar.gz -P $(PREFIX)
-	tar xvf $(PREFIX)/$(MPC).tar.gz -C $(PREFIX)
-	cd $(PREFIX)/$(MPC) && ./configure --prefix="$(PREFIX)" --with-gmp="$(PREFIX)" --with-mpfr="$(PREFIX)"
-	$(MAKE) -C $(PREFIX)/$(MPC)
-	$(MAKE) -C $(PREFIX)/$(MPC) install
-
-#--with-gmp="$(PREFIX)" --with-mpfr="$(PREFIX)" --with-mpc="$(PREFIX)"
-$(GCC):
-	wget -nc https://ftp.gnu.org/gnu/gcc/$(GCC)/$(GCC).tar.gz -P $(PREFIX)
-	tar xvf $(PREFIX)/$(GCC).tar.gz -C $(PREFIX)
-	mkdir -p $(PREFIX)/build-gcc
-	cd $(PREFIX)/build-gcc && ../configure --target="$(TARGET)" --prefix="$(PREFIX)" --disable-nls --enable-languages=c,c++ --without-headers --with-gmp="$(PREFIX)" --with-mpfr="$(PREFIX)" --with-mpc="$(PREFIX)"
-	$(MAKE) -C $(PREFIX)/build-gcc all-gcc	
-	$(MAKE) -C $(PREFIX)/build-gcc all-target-libgcc
-	$(MAKE) -C $(PREFIX)/build-gcc install-gcc
-	$(MAKE) -C $(PREFIX)/build-gcc install-target-libgcc
+#$(GMP):
+#	wget -nc https://ftp.gnu.org/gnu/gmp/$(GMP).tar.bz2 -P $(PREFIX)
+#	tar xvf $(PREFIX)/$(GMP).tar.bz2 -C $(PREFIX)
+#	cd $(PREFIX)/$(GMP) && ./configure --prefix="$(PREFIX)"
+#	$(MAKE) -C $(PREFIX)/$(GMP)
+#	$(MAKE) -C $(PREFIX)/$(GMP) install
+#
+#$(MPFR):
+#	wget -nc https://ftp.gnu.org/gnu/mpfr/$(MPFR).tar.gz -P $(PREFIX)
+#	tar xvf $(PREFIX)/$(MPFR).tar.gz -C $(PREFIX)
+#	cd $(PREFIX)/$(MPFR) && ./configure --prefix="$(PREFIX)" --with-gmp="$(PREFIX)"
+#	$(MAKE) -C $(PREFIX)/$(MPFR)
+#	$(MAKE) -C $(PREFIX)/$(MPFR) install
+#
+#$(MPC):
+#	wget -nc https://ftp.gnu.org/gnu/mpc/$(MPC).tar.gz -P $(PREFIX)
+#	tar xvf $(PREFIX)/$(MPC).tar.gz -C $(PREFIX)
+#	cd $(PREFIX)/$(MPC) && ./configure --prefix="$(PREFIX)" --with-gmp="$(PREFIX)" --with-mpfr="$(PREFIX)"
+#	$(MAKE) -C $(PREFIX)/$(MPC)
+#	$(MAKE) -C $(PREFIX)/$(MPC) install
+#
+##--with-gmp="$(PREFIX)" --with-mpfr="$(PREFIX)" --with-mpc="$(PREFIX)"
+#$(GCC):
+#	wget -nc https://ftp.gnu.org/gnu/gcc/$(GCC)/$(GCC).tar.gz -P $(PREFIX)
+#	tar xvf $(PREFIX)/$(GCC).tar.gz -C $(PREFIX)
+#	mkdir -p $(PREFIX)/build-gcc
+#	cd $(PREFIX)/build-gcc && ../configure --target="$(TARGET)" --prefix="$(PREFIX)" --disable-nls --enable-languages=c,c++ --without-headers --with-gmp="$(PREFIX)" --with-mpfr="$(PREFIX)" --with-mpc="$(PREFIX)"
+#	$(MAKE) -C $(PREFIX)/build-gcc all-gcc	
+#	$(MAKE) -C $(PREFIX)/build-gcc all-target-libgcc
+#	$(MAKE) -C $(PREFIX)/build-gcc install-gcc
+#	$(MAKE) -C $(PREFIX)/build-gcc install-target-libgcc
 
 $(BISON):
 	wget -nc https://ftp.gnu.org/gnu/bison/bison-3.7.4.tar.gz -P $(PREFIX)
@@ -106,10 +106,10 @@ clean:
 	rm -rf $(PREFIX)/$(TEXINFO)
 	rm -rf $(PREFIX)/$(BINUTILS)
 	rm -rf $(PREFIX)/$(M4)
-	rm -rf $(PREFIX)/$(GMP)
-	rm -rf $(PREFIX)/$(MPFR)
-	rm -rf $(PREFIX)/$(MPC)
-	rm -rf $(PREFIX)/$(GCC)
 	rm -rf $(PREFIX)/$(BISON)
 	rm -rf $(PREFIX)/$(FLEX)
 	rm -rf $(PREFIX)/$(GRUB)
+#rm -rf $(PREFIX)/$(GMP)
+#rm -rf $(PREFIX)/$(MPFR)
+#rm -rf $(PREFIX)/$(MPC)
+#rm -rf $(PREFIX)/$(GCC)
