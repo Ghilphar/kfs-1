@@ -247,6 +247,5 @@ void kmain(void)
 	idt_init();
 	kb_init();
     set_cursor(current_loc / 2);
-
 	while(1);
 }

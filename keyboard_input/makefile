@@ -1,4 +1,4 @@
-GCC = i686-elf-gcc
+GCC = gcc
 LD = ld
 NASM = nasm
 
