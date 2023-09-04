@@ -4,24 +4,24 @@ export TARGET := i686-elf
 
 
 BINUTILS_VERSION := 2.35
-GCC_VERSION := 10.4.0
-GMP_VERSION := 6.2.1
-MPFR_VERSION := 4.2.0
-MPC_VERSION := 1.2.1
-M4_VERSION := 1.4.19
+#GCC_VERSION := 10.4.0
+#GMP_VERSION := 6.2.1
+#MPFR_VERSION := 4.2.0
+#MPC_VERSION := 1.2.1
+#M4_VERSION := 1.4.19
 
 FLEX := flex-2.6.4
 TEXINFO := texinfo-6.8
 BISON := bison-3.7.4
 GRUB := grub-2.06
 BINUTILS := binutils-$(BINUTILS_VERSION)
-GCC := gcc-$(GCC_VERSION)
+#GCC := gcc-$(GCC_VERSION)
 #M4 := m4-$(M4_VERSION)
 #GMP := gmp-$(GMP_VERSION)
 #MPFR := mpfr-$(MPFR_VERSION)
 #MPC := mpc-$(MPC_VERSION)
 
-all: $(TEXINFO) $(BINUTILS) $(BISON) $(FLEX) $(GRUB) $(M4) #$(GMP) $(MPFR) $(MPC) $(GCC) 
+all: $(TEXINFO) $(BINUTILS) $(BISON) $(FLEX) $(GRUB) #$(M4) $(GMP) $(MPFR) $(MPC) $(GCC) 
 
 $(TEXINFO):
 	mkdir -p $(PREFIX)
@@ -41,13 +41,13 @@ $(BINUTILS):
 	$(MAKE) -C $(PREFIX)/build-binutils
 	$(MAKE) -C $(PREFIX)/build-binutils install
 
-$(M4):
-	wget -nc https://ftp.gnu.org/gnu/m4/$(M4).tar.gz -P $(PREFIX)
-	tar xvf $(PREFIX)/$(M4).tar.gz -C $(PREFIX)
-	cd $(PREFIX)/$(M4) && ./configure --prefix="$(PREFIX)"
-	$(MAKE) -C $(PREFIX)/$(M4)
-	$(MAKE) -C $(PREFIX)/$(M4) install
-	
+#$(M4):
+#	wget -nc https://ftp.gnu.org/gnu/m4/$(M4).tar.gz -P $(PREFIX)
+#	tar xvf $(PREFIX)/$(M4).tar.gz -C $(PREFIX)
+#	cd $(PREFIX)/$(M4) && ./configure --prefix="$(PREFIX)"
+#	$(MAKE) -C $(PREFIX)/$(M4)
+#	$(MAKE) -C $(PREFIX)/$(M4) install
+#	
 #$(GMP):
 #	wget -nc https://ftp.gnu.org/gnu/gmp/$(GMP).tar.bz2 -P $(PREFIX)
 #	tar xvf $(PREFIX)/$(GMP).tar.bz2 -C $(PREFIX)
